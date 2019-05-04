@@ -1,6 +1,5 @@
 package com.example.plugin.asr;
 
-
 import android.util.Log;
 
 import com.baidu.speech.EventListener;

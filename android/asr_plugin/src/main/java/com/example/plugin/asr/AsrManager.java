@@ -28,9 +28,9 @@ public class AsrManager {
      * 初始化 提供 EventManagerFactory需要的Context和RecogEventAdapter
      *
      * @param context
-     * @param onAsrListener 识别状态和结果回调
+     * @param listener 识别状态和结果回调
      */
-    public AsrManager(Context context, OnAsrListener onAsrListener) {
+    public AsrManager(Context context, OnAsrListener listener) {
         if (isInited) {
             Log.e(TAG, "还未调用release()，请勿新建一个新类");
             throw new RuntimeException("还未调用release()，请勿新建一个新类");
@@ -39,7 +39,7 @@ public class AsrManager {
         // SDK集成步骤 初始化asr的EventManager示例，多次得到的类，只能选一个使用
         asr = EventManagerFactory.create(context, "asr");
         // SDK集成步骤 设置回调event， 识别引擎会回调这个类告知重要状态和识别结果
-        asr.registerListener(eventListener = new RecogEventAdapter(onAsrListener));
+        asr.registerListener(eventListener = new RecogEventAdapter(listener));
     }
 
     /**

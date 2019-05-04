@@ -3,30 +3,28 @@ package com.example.plugin.asr;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
-
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Map;
 
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
 
 public class AsrPlugin implements MethodChannel.MethodCallHandler {
-    private final static String TAG = "AsrPlgin";
+    private final static String TAG = "AsrPlugin";
     private final Activity activity;
     private ResultStateful resultStateful;
     private AsrManager asrManager;
 
     public static void registerWith(PluginRegistry.Registrar registrar) {
-        MethodChannel methodChannel = new MethodChannel(registrar.messenger(), "asr_plugin");
-        AsrPlugin asrInstance = new AsrPlugin(registrar);
-        methodChannel.setMethodCallHandler(asrInstance);
+        MethodChannel channel = new MethodChannel(registrar.messenger(), "asr_plugin");
+        AsrPlugin instance = new AsrPlugin(registrar);
+        channel.setMethodCallHandler(instance);
     }
 
     public AsrPlugin(PluginRegistry.Registrar registrar) {
@@ -38,15 +36,14 @@ public class AsrPlugin implements MethodChannel.MethodCallHandler {
         initPermission();
         switch (methodCall.method) {
             case "start":
-                Log.e(TAG, "我被调用了 -------------- start");
                 resultStateful = ResultStateful.of(result);
                 start(methodCall, resultStateful);
                 break;
             case "stop":
-                stop(methodCall, result);
+                stop(methodCall,result);
                 break;
             case "cancel":
-                cancel(methodCall, result);
+                cancel(methodCall,result);
                 break;
             default:
                 result.notImplemented();
@@ -54,18 +51,16 @@ public class AsrPlugin implements MethodChannel.MethodCallHandler {
     }
 
     private void start(MethodCall call, ResultStateful result) {
-        Log.e(TAG, activity.toString());
         if (activity == null) {
             Log.e(TAG, "Ignored start, current activity is null.");
             result.error("Ignored start, current activity is null.", null, null);
             return;
         }
         if (getAsrManager() != null) {
-            Log.e(TAG, "Good!");
             getAsrManager().start(call.arguments instanceof Map ? (Map) call.arguments : null);
         } else {
-            Log.e(TAG, "Ignored start, current activity is null.");
-            result.error("Ignored start, current activity is null.", null, null);
+            Log.e(TAG, "Ignored start, current getAsrManager is null.");
+            result.error("Ignored start, current getAsrManager is null.", null, null);
         }
     }
 
@@ -81,7 +76,6 @@ public class AsrPlugin implements MethodChannel.MethodCallHandler {
         }
     }
 
-
     @Nullable
     private AsrManager getAsrManager() {
         if (asrManager == null) {
@@ -91,7 +85,9 @@ public class AsrPlugin implements MethodChannel.MethodCallHandler {
         }
         return asrManager;
     }
-
+    /**
+     * android 6.0 以上需要动态申请权限
+     */
     private void initPermission() {
         String permissions[] = {Manifest.permission.RECORD_AUDIO,
                 Manifest.permission.ACCESS_NETWORK_STATE,
@@ -102,7 +98,7 @@ public class AsrPlugin implements MethodChannel.MethodCallHandler {
 
         ArrayList<String> toApplyList = new ArrayList<String>();
 
-        for (String perm : permissions) {
+        for (String perm :permissions){
             if (PackageManager.PERMISSION_GRANTED != ContextCompat.checkSelfPermission(activity, perm)) {
                 toApplyList.add(perm);
                 //进入到这里代表没有权限.
@@ -110,12 +106,11 @@ public class AsrPlugin implements MethodChannel.MethodCallHandler {
             }
         }
         String tmpList[] = new String[toApplyList.size()];
-        if (!toApplyList.isEmpty()) {
+        if (!toApplyList.isEmpty()){
             ActivityCompat.requestPermissions(activity, toApplyList.toArray(tmpList), 123);
         }
 
     }
-
     private OnAsrListener onAsrListener = new OnAsrListener() {
         @Override
         public void onAsrReady() {

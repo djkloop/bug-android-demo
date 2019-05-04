@@ -3,7 +3,6 @@ package com.example.plugin.asr;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-
 import io.flutter.plugin.common.MethodChannel;
 
 public class ResultStateful implements MethodChannel.Result {
@@ -30,7 +29,7 @@ public class ResultStateful implements MethodChannel.Result {
     }
 
     @Override
-    public void error(String s, String s1, Object o) {
+    public void error(String s, @Nullable String s1, @Nullable Object o) {
         if (called) {
             printError();
             return;
@@ -47,9 +46,10 @@ public class ResultStateful implements MethodChannel.Result {
         }
         called = true;
         result.notImplemented();
+
     }
 
     private void printError() {
-        Log.e(TAG, "error: result called ----------------- -------------");
+        Log.e(TAG, "error:result called");
     }
 }
